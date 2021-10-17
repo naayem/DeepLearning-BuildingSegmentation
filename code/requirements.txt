@@ -1,0 +1,8 @@
+pandas
+numpy
+tqdm
+glob3
+shutil
+gdown
+argparse
+sklearn
