@@ -50,4 +50,13 @@ def parse_args():
 def copy_exp_file(trainer):
     if 'FAKERUN' in trainer.cfg and trainer.cfg.FAKERUN:
         return
-    shutil.copy2(trainer.cfg.CONFIG_FILENAME, trainer.final_output_dir) 
+    shutil.copy2(trainer.cfg.CONFIG_FILENAME, trainer.final_output_dir)
+
+def copy_proc_file(trainer):
+    if 'FAKERUN' in trainer.cfg and trainer.cfg.FAKERUN:
+        return
+    
+    # TODO: fix path
+    proc_file = f'./src/deep_cvlab/procedures/procedures/{trainer.cfg.PROCEDURE}.py'
+    #shutil.copy2(proc_file, trainer.final_output_dir)
+    print("No preocedure system implemented")
