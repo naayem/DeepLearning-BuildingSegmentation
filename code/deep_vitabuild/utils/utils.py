@@ -7,6 +7,34 @@ from easydict import EasyDict as edict
 from pathlib import Path
 import argparse
 
+def init_exp_folder(cfg):
+    if 'FAKERUN' in cfg and cfg.FAKERUN:
+        return None
+
+    output_dir = cfg.OUTPUT_DIR
+    exp_foldername = cfg.EXP_NAME
+
+    assert exp_foldername is not None, 'Specify the Experiment Name!'
+    assert output_dir is not None, 'Specify the Output folder (where to save models, checkpoints, etc.)!'
+    root_output_dir = Path(output_dir)
+
+    # set up logger
+    if not root_output_dir.exists():
+        print(f'=> creating "{root_output_dir}" ...')
+        root_output_dir.mkdir()
+    else:
+        print(f'Folder "{root_output_dir}" already exists.')
+
+    final_output_dir = root_output_dir / exp_foldername
+
+    if not final_output_dir.exists():
+        print('=> creating "{}" ...'.format(final_output_dir))
+    else:
+        print(f'Folder "{final_output_dir}" already exists.')
+
+    final_output_dir.mkdir(parents=True, exist_ok=True)
+    return final_output_dir
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Training Launch')
     # general
