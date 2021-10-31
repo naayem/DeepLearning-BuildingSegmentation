@@ -46,3 +46,8 @@ def parse_args():
     args, rest = parser.parse_known_args()
     args = parser.parse_args()
     return args
+
+def copy_exp_file(trainer):
+    if 'FAKERUN' in trainer.cfg and trainer.cfg.FAKERUN:
+        return
+    shutil.copy2(trainer.cfg.CONFIG_FILENAME, trainer.final_output_dir) 
