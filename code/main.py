@@ -1,5 +1,8 @@
 import pprint
-from deep_vitabuild import utils
+
+from torch._C import device
+from deep_vitabuild import core, utils, models
+from torch import device as torch_device
 
 class Trainer():
     '''
@@ -19,6 +22,18 @@ class Trainer():
         self.final_output_dir = utils.utils.init_exp_folder(self.cfg)
         self.logger, self.log_filename = utils.utils.create_logger(self.final_output_dir, self.cfg)
 
+        self.gpus = [int(i) for i in self.cfg.GPUS.split(',')]
+        self.device0 = torch_device(f'cuda:{self.gpus[0]}')
+        self.models = models.models_common.get_models_by_config(self.cfg, self.gpus, self.device0)
+    
+    def run(self):
+        '''Runs the training procedure specified in "self.proc". 
+        '''
+        for model in self.models:
+            model.run()
+        self.logger.info(f'\nTraining?? of "{self.cfg.EXP_NAME}" experiment is finished. \n')
+
+
 def main():
 
     ### initialize Trainer
@@ -27,7 +42,7 @@ def main():
     cfg = utils.utils.parse_args().cfg
     print("ooooo", cfg)
  
-    trainer = Trainer(cfg)
+    trainer = core.trainer.Trainer(cfg)
 
     ### copy yaml description file to the save folder
     utils.utils.copy_exp_file(trainer)
@@ -37,6 +52,8 @@ def main():
 
     trainer.logger.info(pprint.pformat(trainer.cfg))
     trainer.logger.info('#'*100)
+
+    print(trainer.cfg.MODELS.model1.PARAMS.WEIGHT_PATH)
 
     ### run the training procedure
     #trainer.run()
