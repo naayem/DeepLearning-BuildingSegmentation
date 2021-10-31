@@ -1,0 +1,83 @@
+GPUS : '0' # indices of gpus available on servers. CPU mode is not available, only GPU!
+PRINT_FREQ : 50 # frequency of printing statistics or any other stuff
+OUTPUT_DIR : 'output/<group_of_experiments_name>' # path from the root folder to the save folder
+
+MODELS:
+  model1:
+    WEIGHT_PATH : './data/model_weight/model1_weight.pth'
+    DATA_PATH : './data/training_data/model1'
+    SEGMENT_IMAGE_PATH : './data/segments'
+    ID_SEGMENTS : '16878,16888'
+    RESULT_PATH :  './result/model1'
+  model2:
+    WEIGHT_PATH : './data/model_weight/model2_weight.pth'
+    DATA_PATH : './data/training_data/model2'
+    SEGMENT_IMAGE_PATH : './data/segments'
+    ID_SEGMENTS : '16878,16888'
+    RESULT_PATH :  './result/model2'
+  duplication:
+    WEIGHT_PATH : './data/affnet_weight'
+    SEGMENT_CROPPED_IMAGE_PATH : './result/model1/crop_imgs'
+    ID_SEGMENTS : '16878,16888'
+    RESULT_PATH :  './result/duplication'
+    MODEL1_OPEN_INFO_FOLDER : './result/model1/open_info'
+    MODEL2_BUILDING_INFO_FOLDER : './result/model2/building_info'
+
+LOSSES : # loss functions to create 
+  dummy_loss : 
+    DIR : 'joints_loss' # file in 'lib/losses/<DIR>.py' where the loss class lies
+    NAME : 'JointsLoss' # name of the NN-loss class to initialize
+    PARAMS :
+      criterion : 'L2'
+
+OPTIM : # optimizers to use
+  net : # must coincide with the name of the network!
+    NAME : 'Adam' # torch.optim.<NAME>
+    PARAMS :
+      lr : 0.001
+
+SCHED : # schedulers to use 
+  net : # must coincide with the name of the network!
+    NAME : 'ReduceLROnPlateau' # torch.optim.lr_scheduler.<NAME>
+    PARAMS :
+      mode : 'min'
+      factor : 0.5
+      verbose : True
+      min_lr : 0.000001
+      patience : 10
+
+DATASETS : # datasets to initialize
+  train : # name of the dataset that will be used in the experiment
+    DIR : 'mpii' # file in 'lib/datasets/<DIR>.py' where the dataset class lies
+    NAME : 'MPII' # name of the dataset class to initialize
+    PARAMS :
+      mode : 'train'
+  valid : 
+    DIR : 'mpii'
+    NAME : 'MPII'
+    PARAMS :
+      mode : 'valid'
+
+DATALOAD : # dataloaders to iterate over dataset
+  train : # must coincide with the name of dataset
+    NUM_ITERATIONS_PER_EPOCH : 1_000 # len(dataloader) == NUM_ITERATIONS, not len(dataloader(dataset)) as usual
+    PARAMS :
+      shuffle : True
+      batch_size : 32
+      num_workers : 5
+  valid : 
+    PARAMS :
+      shuffle : False
+      batch_size : 32
+      num_workers : 5
+
+TRAINING : # experiment specifications
+  END_EPOCH : 300 
+  # RESUME :
+  #   LOAD_MODELS_ONLY : True # if True load weights as initialization, "fine-tuning" mode
+  #   CKPT : '/path/to/saved/model.pth' # path where the pretrained model lies
+
+
+PROCEDURE : 'proc_basic' # file 'lib/procedures/procedures/<PROCEDURE>.py' where train() and valid() are specified
+
+EXP_NAME : 'basic_exp_name_MPII_Adamlr1e-3_pat10_batch32' 
