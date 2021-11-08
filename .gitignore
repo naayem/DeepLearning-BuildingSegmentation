@@ -2,3 +2,9 @@
 *.ipynb_checkpoints*
 *__pycache__*
 output/<group_of_experiments_name>/basic_exp_name_MPII_Adamlr1e-3_pat10_batch32/experiment.yaml
+*.jpg
+*.meta
+output/*
+code/data/*
+code/training/*
+poetry.lock
