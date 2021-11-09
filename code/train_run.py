@@ -29,6 +29,7 @@ from detectron2.data import build_detection_test_loader
 
 # address of building dataset
 DATASET_ADDRESS = '/home/facades/projects/buildings_segmentation_detection/code/data'
+OUTPUT_DIR = '/home/facades/projects/buildings_segmentation_detection/output3'
 
 # if your dataset is in COCO format, this cell can be replaced by the following three lines:
 # from detectron2.data.datasets import register_coco_instances
@@ -120,7 +121,7 @@ def cfg_detectron():
 
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
-    cfg.DATASETS.TRAIN = ("building_train","building_totest",)
+    cfg.DATASETS.TRAIN = ("building_train", "building_totest",)
     cfg.DATASETS.TEST = ()
     cfg.DATALOADER.NUM_WORKERS = 2
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")  # Let training initialize from model zoo
@@ -132,6 +133,7 @@ def cfg_detectron():
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 2  # 2 class ("opening","masonry","m6","rcw"). (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
     # NOTE: this config means the number of classes, but a few popular unofficial tutorials incorrect uses num_classes+1 here.
 
+    cfg.OUTPUT_DIR = OUTPUT_DIR
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     return cfg
 
@@ -204,7 +206,7 @@ def inference_val(cfg, building_metadata):
         out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
 
         img_name = 'predict_'+d["file_name"].split('/')[-1]
-        savepath = '/home/facades/projects/buildings_segmentation_detection/code/data/val_predict' + img_name
+        savepath = '/home/facades/projects/buildings_segmentation_detection/code/data/val_predict/' + img_name
         cv2.imwrite(savepath, out.get_image()[:, :, ::-1])
         #cv2_imshow(out.get_image()[:, :, ::-1])
     
@@ -216,26 +218,64 @@ def evaluate_AP(cfg, trainer):
     print(inference_on_dataset(trainer.model, val_loader, evaluator))
     # another equivalent way to evaluate the model is to use `trainer.test`
 
+def inference_detectron(cfg, building_metadata):
+    # Inference should use the config with parameters that are used in training
+    # cfg now already contains everything we've set previously. We changed it a little bit for inference:
+    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.40   # set a custom testing threshold
+    predictor = DefaultPredictor(cfg)
 
+    #if not os.path.exists('/content/val_predict'):
+    os.makedirs('/data/facades/outputs/inferences/inference_full2/', exist_ok=True)
+    DATASET_DIR = '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1'
+
+    for folder in next(os.walk(DATASET_DIR))[1]:
+        folder_path = DATASET_DIR+'/'+folder
+        for filename in os.listdir(folder_path):
+            if filename.endswith(".jpg"):
+                print(filename)
+                print(folder_path+filename)
+                im = cv2.imread(folder_path+'/'+filename)
+                outputs = predictor(im)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
+                v = Visualizer(im[:, :, ::-1],
+                            metadata=building_metadata, 
+                            scale=0.5, 
+                            instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
+                )
+                out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+
+                img_name = 'inference_on_'+filename
+                savepath = '/data/facades/outputs/inferences/inference_full2/' + img_name
+                cv2.imwrite(savepath, out.get_image()[:, :, ::-1])
+                #cv2_imshow(out.get_image()[:, :, ::-1])
+    
+    return cfg
+
+def count_dataset():
+    DATASET_DIR = '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1'
+    counter = 0
+    for folder in next(os.walk(DATASET_DIR))[1]:
+        folder_path = DATASET_DIR+'/'+folder
+        for filename in os.listdir(folder_path):
+            if filename.endswith(".jpg"):
+                counter +=1
+    
+    print('############################COUNTER###################')
+    print(counter)
+    return
 
 def main():
     building_metadata, building_val_metadata = add_to_catalog()
     dataset_dicts = get_building_dicts(DATASET_ADDRESS+'/train')
     cfg = cfg_detectron()
     print(cfg.OUTPUT_DIR)
-    train_detectron(cfg)
-    cfg, trainer = add_val_loss(cfg)
-    cfg = inference_val(cfg, building_metadata)
-    evaluate_AP(cfg, trainer)
+    #train_detectron(cfg)
+    #cfg, trainer = add_val_loss(cfg)
+    #cfg = inference_val(cfg, building_metadata)
+    #evaluate_AP(cfg, trainer)
 
-
-
-
-
-
-
-
+    #inference_detectron(cfg, building_metadata)
+    count_dataset()
 
 if __name__ == '__main__':
-
     main()
