@@ -26,6 +26,11 @@ def create_segment_folder(df, streams_dir, segment_dir):
             shutil.copy(
                 img, f'{segment_dir}/{id_segment}/{id_segment}_{panorama_stream}_{frame_num}_{img_name}')
 
+def main(args):
+    df_segments_info = pd.read_csv(args.segments_info_path) # read the csv file
+    test_segments = [item for item in args.id_segments.split(',')]
+    df_test = df_segments_info[df_segments_info['idsegment'].isin(test_segments)]
+    df_test.apply(lambda x: create_segment_folder(x, args.streams_dir, args.segment_image_path), axis=1)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('')
@@ -40,14 +45,7 @@ if __name__ == '__main__':
                         help="segments' id for testing(delimited list input)")
     args = parser.parse_args()
 
+    main(args)
     print('============  Arguments infos ============ ')
     print("\n".join("%s: %s" % (k, str(v))
           for k, v in sorted(dict(vars(args)).items())))
-
-
-df_segments_info = pd.read_csv(args.segments_info_path) # read the csv file
-test_segments = [item for item in args.id_segments.split(',')]
-df_test = df_segments_info[df_segments_info['idsegment'].isin(test_segments)]
-
-df_test.apply(lambda x: create_segment_folder(
-    x, args.streams_dir, args.segment_image_path), axis=1)
