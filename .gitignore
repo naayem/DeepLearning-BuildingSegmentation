@@ -10,3 +10,4 @@ code/training/*
 poetry.lock
 output1/events.out.tfevents.1636387069.vita5.5527.1
 output*
+lightly*
