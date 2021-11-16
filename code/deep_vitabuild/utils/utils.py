@@ -105,3 +105,15 @@ def copy_proc_file(trainer):
     proc_file = f'./src/deep_cvlab/procedures/procedures/{trainer.cfg.PROCEDURE}.py'
     #shutil.copy2(proc_file, trainer.final_output_dir)
     print("No preocedure system implemented")
+
+def count_dataset(dataset_dir):
+    counter = 0
+    for folder in next(os.walk(DATASET_DIR))[1]:
+        folder_path = DATASET_DIR+'/'+folder
+        for filename in os.listdir(folder_path):
+            if filename.endswith(".jpg"):
+                counter +=1
+    
+    print('############################COUNTER###################')
+    print(counter)
+    return
