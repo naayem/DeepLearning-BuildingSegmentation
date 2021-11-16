@@ -1,0 +1,85 @@
+OUTPUT_DIR : '/home/facades/projects/buildings_segmentation_detection/outputX'
+
+TRAINING:
+  DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/outputX/train'
+
+VALIDATION:
+  DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data/val'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/outputX/val'
+  CATALOG : "building_val"
+  SCORE_THRESH_TEST : 0.80 
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/outputX/model_final.pth'
+  #For Train+val in one go use the output dir where the weights will located after training
+
+INFERENCE:
+  STRUCTURE : 'full' #How to read the dataset. For now: full or folder (through folders and directly thrg items resp)
+  DATASET_PATH: '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1'
+  TARGET_PATH : '/data/facades/outputs/inferences/inference_fullX/'
+  SCORE_THRESH_TEST : 0.40
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output3/model_final.pth'
+  #For Train+inf in one go use the output dir where the weights will located after training
+
+DETECTRON:
+  CATALOG :
+    - "totest"
+    - "train"
+    - "val"
+  DATASETS :
+    - "building_totest"
+    - "building_train"
+    - "building_val"
+  EPOCH : 40
+  TOTAL_NUM_IMAGES : 113
+  MODEL_ZOO : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+  NUM_WORKERS : 2
+  WEIGHTS : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+  IMS_PER_BATCH : 2
+  BASE_LR : 0.00025  # pick a good LR
+  MAX_ITER : 'int(EPOCH*TOTAL_NUM_IMAGES/cfg.SOLVER.IMS_PER_BATCH-1)' #INFORMATIVE ONLY # 300 iterations seems good enough for this toy dataset; you will need to train longer for a practical dataset
+  STEPS :      # do not decay learning rate
+  BATCH_SIZE_PER_IMAGE : 256   # faster, and good enough for this toy dataset (default: 512)
+  NUM_CLASSES : 2  # 2 class ("opening","masonry","m6","rcw").  (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
+  # NOTE: this config means the number of classes, but a few popular unofficial tutorials incorrect uses num_classes+1 here.
+
+
+GPUS : '0' # indices of gpus available on servers. CPU mode is not available, only GPU!
+PRINT_FREQ : 50 # frequency of printing statistics or any other stuff
+
+MODELS:
+  model1:
+    WEIGHT_PATH : './data/model_weight/model1_weight.pth'
+    DATA_PATH : './data/training_data/model1'
+    SEGMENT_IMAGE_PATH : './data/segments'
+    ID_SEGMENTS : '16878,16888'
+    RESULT_PATH :  './result/model1'
+
+DATASETS : # datasets to initialize
+  train : # name of the dataset that will be used in the experiment
+    DIR : 'mpii' # file in 'lib/datasets/<DIR>.py' where the dataset class lies
+    NAME : 'MPII' # name of the dataset class to initialize
+    PARAMS :
+      mode : 'train'
+  valid : 
+    DIR : 'mpii'
+    NAME : 'MPII'
+    PARAMS :
+      mode : 'valid'
+
+DATALOAD : # dataloaders to iterate over dataset
+  train : # must coincide with the name of dataset
+    NUM_ITERATIONS_PER_EPOCH : 1_000 # len(dataloader) == NUM_ITERATIONS, not len(dataloader(dataset)) as usual
+    PARAMS :
+      shuffle : True
+      batch_size : 32
+      num_workers : 5
+  valid : 
+    PARAMS :
+      shuffle : False
+      batch_size : 32
+      num_workers : 5
+
+
+PROCEDURE : 'proc_basic' 
+
+EXP_NAME : 'SETUP_DETECTRON' 

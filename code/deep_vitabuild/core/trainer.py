@@ -29,4 +29,4 @@ class Trainer():
         '''
         for model in self.models:
             model.run()
-        self.logger.info(f'\nTraining?? of "{self.cfg.EXP_NAME}" experiment is finished. \n')
+        self.logger.info(f'\nTraining of "{self.cfg.EXP_NAME}" experiment is finished. \n')

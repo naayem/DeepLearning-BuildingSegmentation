@@ -18,10 +18,6 @@ BASE_CONFIG.PRINT_FREQ = 100 # how often to print the results
 
 BASE_CONFIG.MODELS = edict()
 
-BASE_CONFIG.LOSSES = edict()
-BASE_CONFIG.OPTIM = edict()
-BASE_CONFIG.SCHED = edict()
-
 BASE_CONFIG.DATASETS = edict()
 BASE_CONFIG.DATALOAD = edict()
 
@@ -30,8 +26,6 @@ BASE_CONFIG.EXP_NAME = None
 
 # training specifications
 BASE_CONFIG.TRAINING = edict()
-BASE_CONFIG.TRAINING.END_EPOCH = 100
-
 
 def get_config(exp_config):
     config_filename = ''

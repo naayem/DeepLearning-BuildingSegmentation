@@ -1,33 +1,41 @@
-import pprint
-
-from deep_vitabuild import utils
+from deep_vitabuild.utils import utils, config_utils
 from deep_vitabuild import core
+from deep_vitabuild.procedures import inferences_detectron, train_detectron, valid_detectron
 
 def main():
+    TRAIN = 0
+    VALID = 0
+    INFERENCES = 1
 
-    ### initialize Trainer
-    # simply get the main.py arguments as namespace ( like a dict)
-    # The .cfg retrieve the corresponding path to the exp yaml
-    cfg = utils.utils.parse_args().cfg
-    print("ooooo", cfg)
- 
-    trainer = core.trainer.Trainer(cfg)
+    gen_cfg = utils.parse_args().cfg
+    gen_cfg = config_utils.get_config(gen_cfg) #Parses the cfg.yaml file in dict of dict fashion
+    final_output_dir = utils.init_exp_folder(gen_cfg)
+    logger, log_filename = utils.create_logger(final_output_dir, gen_cfg)
 
-    ### copy yaml description file to the save folder
-    utils.utils.copy_exp_file(trainer)
+    print(tuple(gen_cfg.DETECTRON.CATALOG))
+    print(gen_cfg.TRAINING)
 
-    ### copy proc.py file to the save folder
-    utils.utils.copy_proc_file(trainer)
+    building_metadata, building_val_metadata = train_detectron.add_to_catalog(gen_cfg)
+    dataset_dicts = train_detectron.get_building_dicts(gen_cfg.TRAINING.DATASET_DIR+'/train')
+    detec_cfg = train_detectron.cfg_detectron(gen_cfg)
 
-    trainer.logger.info(pprint.pformat(trainer.cfg))
-    trainer.logger.info('#'*100)
+    print(detec_cfg.OUTPUT_DIR)
+    
+    if TRAIN:
+        train_detectron.train_detectron(detec_cfg)
+    
+    if VALID:
+        detec_cfg, trainer = valid_detectron.add_val_loss(detec_cfg)
+        detec_cfg = valid_detectron.inference_val(detec_cfg, building_metadata)
+        valid_detectron.evaluate_AP(detec_cfg, trainer)
 
-    print(trainer.cfg.MODELS.model1.PARAMS.WEIGHT_PATH)
+    if INFERENCES:
+        if gen_cfg.INFERENCE.STRUCTURE == 'folder':
+            inferences_detectron.inference_detectron_folder(detec_cfg, gen_cfg, building_metadata)
+        if gen_cfg.INFERENCE.STRUCTURE == 'full':
+            inferences_detectron.inference_detectron_full(detec_cfg, gen_cfg, building_metadata)
 
-    ### run the training procedure
-    #trainer.run()
-
+    #utils.count_dataset(DATASET_DIR)
 
 if __name__ == '__main__':
-
     main()

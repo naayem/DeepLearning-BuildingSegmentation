@@ -1,7 +1,6 @@
-import torch
-
 # import some common libraries
 import os, cv2
+import torch
 
 # import some common detectron2 utilities
 from detectron2.engine import DefaultPredictor
@@ -15,12 +14,15 @@ from detectron2.utils.visualizer import ColorMode
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader
 
+# import some local lib
+from deep_vitabuild.procedures.train_detectron import get_building_dicts
+
 class ValidationLoss(HookBase):
-    def __init__(self, cfg):
+    def __init__(self, detec_cfg):
         super().__init__()
-        self.cfg = cfg.clone()
-        self.cfg.DATASETS.TRAIN = cfg.DATASETS.VAL
-        self._loader = iter(build_detection_train_loader(self.cfg))
+        self.detec_cfg = detec_cfg.clone()
+        self.detec_cfg.DATASETS.TRAIN = detec_cfg.DATASETS.VAL
+        self._loader = iter(build_detection_train_loader(self.detec_cfg))
         
     def after_step(self):
         data = next(self._loader)
@@ -37,30 +39,32 @@ class ValidationLoss(HookBase):
                 self.trainer.storage.put_scalars(total_val_loss=losses_reduced, 
                                                  **loss_dict_reduced)
 
-def add_val_loss(cfg):
-    cfg.DATASETS.VAL = ("building_val",)
-    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    trainer = DefaultTrainer(cfg) 
-    val_loss = ValidationLoss(cfg)  
+def add_val_loss(detec_cfg):
+    gen_cfg.DATASETS.VAL
+    detec_cfg.DATASETS.VAL = ("building_val",)
+    os.makedirs(detec_cfg.OUTPUT_DIR, exist_ok=True)
+    trainer = DefaultTrainer(detec_cfg) 
+    val_loss = ValidationLoss(detec_cfg)  
     trainer.register_hooks([val_loss])
     # swap the order of PeriodicWriter and ValidationLoss
     trainer._hooks = trainer._hooks[:-2] + trainer._hooks[-2:][::-1]
     trainer.resume_or_load(resume=False)
     trainer.train()
-    return cfg, trainer
+    return detec_cfg, trainer
 
-def inference_val(cfg, building_metadata):
+def inference_val(detec_cfg, gen_cfg, building_metadata):
     # Inference should use the config with parameters that are used in training
-    # cfg now already contains everything we've set previously. We changed it a little bit for inference:
-    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.80   # set a custom testing threshold
-    predictor = DefaultPredictor(cfg)
+    # detec_cfg now already contains everything we've set previously. We changed it a little bit for inference:
+    detec_cfg.MODEL.WEIGHTS = gen_cfg.VALID.WEIGHTS  # path to the model we just trained
+    detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.VALID.SCORE_THRESH_TEST   # set a custom testing threshold
+    predictor = DefaultPredictor(detec_cfg)
 
     #if not os.path.exists('/content/val_predict'):
-    os.makedirs('/home/facades/projects/buildings_segmentation_detection/code/data/val_predict', exist_ok=True)
+    val_ouput_path = gen_cfg.VALID.TARGET_PATH
+    os.makedirs(val_ouput_path, exist_ok=True)
 
     
-    dataset_dicts = get_building_dicts(DATASET_ADDRESS+"/val")
+    dataset_dicts = get_building_dicts(gen_cfg.VALID.DATASET_DIR)
     # From here to change the numer of imgs to show
     # num_to_show = 1
     # for d in random.sample(dataset_dicts,num_to_show):  
@@ -75,14 +79,14 @@ def inference_val(cfg, building_metadata):
         out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
 
         img_name = 'predict_'+d["file_name"].split('/')[-1]
-        savepath = '/home/facades/projects/buildings_segmentation_detection/code/data/val_predict/' + img_name
+        savepath = val_ouput_path + img_name
         cv2.imwrite(savepath, out.get_image()[:, :, ::-1])
         #cv2_imshow(out.get_image()[:, :, ::-1])
     
-    return cfg
+    return detec_cfg
 
-def evaluate_AP(cfg, trainer):
-    evaluator = COCOEvaluator("building_val", ("bbox", "segm"), False, output_dir="./output/")
-    val_loader = build_detection_test_loader(cfg, "building_val")
+def evaluate_AP(detec_cfg, gen_cfg, trainer):
+    evaluator = COCOEvaluator(gen_cfg.VALID.CATALOG, ("bbox", "segm"), False, output_dir=gen_cfg.VALID.TARGET_PATH)
+    val_loader = build_detection_test_loader(detec_cfg, (gen_cfg.VALID.CATALOG))
     print(inference_on_dataset(trainer.model, val_loader, evaluator))
     # another equivalent way to evaluate the model is to use `trainer.test`

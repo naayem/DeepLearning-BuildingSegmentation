@@ -12,7 +12,7 @@ def inference_detectron_full(detec_cfg, gen_cfg, building_metadata):
 
     # Inference should use the config with parameters that are used in training
     # detec_cfg now already contains everything we've set previously. We changed it a little bit for inference:
-    detec_cfg.MODEL.WEIGHTS = os.path.join(detec_cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
+    detec_cfg.MODEL.WEIGHTS = gen_cfg.INFERENCE.WEIGHTS  # path to the model we just trained
     detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.INFERENCE.SCORE_THRESH_TEST   # set a custom testing threshold
     predictor = DefaultPredictor(detec_cfg)
 
@@ -45,7 +45,7 @@ def inference_detectron_folder(detec_cfg, gen_cfg, building_metadata):
 
     # Inference should use the config with parameters that are used in training
     # detec_cfg now already contains everything we've set previously. We changed it a little bit for inference:
-    detec_cfg.MODEL.WEIGHTS = os.path.join(detec_cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
+    detec_cfg.MODEL.WEIGHTS = gen_cfg.INFERENCE.WEIGHTS  # path to the model we just trained
     detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.INFERENCE.SCORE_THRESH_TEST   # set a custom testing threshold
     predictor = DefaultPredictor(detec_cfg)
 
