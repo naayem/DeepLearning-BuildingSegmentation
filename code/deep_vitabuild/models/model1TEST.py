@@ -15,8 +15,9 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.config import get_cfg
 from detectron2.engine import DefaultPredictor
 from detectron2 import model_zoo
-from helper import *
-from floor_helper import *
+#from helper import *
+#from floor_helper import *
+
 # need to manually install torch 1.8 if Colab changes its default version
 assert torch.__version__.startswith("1.8")
 setup_logger()

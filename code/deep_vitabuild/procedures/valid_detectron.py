@@ -40,7 +40,6 @@ class ValidationLoss(HookBase):
                                                  **loss_dict_reduced)
 
 def add_val_loss(detec_cfg):
-    gen_cfg.DATASETS.VAL
     detec_cfg.DATASETS.VAL = ("building_val",)
     os.makedirs(detec_cfg.OUTPUT_DIR, exist_ok=True)
     trainer = DefaultTrainer(detec_cfg) 
@@ -55,16 +54,16 @@ def add_val_loss(detec_cfg):
 def inference_val(detec_cfg, gen_cfg, building_metadata):
     # Inference should use the config with parameters that are used in training
     # detec_cfg now already contains everything we've set previously. We changed it a little bit for inference:
-    detec_cfg.MODEL.WEIGHTS = gen_cfg.VALID.WEIGHTS  # path to the model we just trained
-    detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.VALID.SCORE_THRESH_TEST   # set a custom testing threshold
+    detec_cfg.MODEL.WEIGHTS = gen_cfg.VALIDATION.WEIGHTS  # path to the model we just trained
+    detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.VALIDATION.SCORE_THRESH_TEST   # set a custom testing threshold
     predictor = DefaultPredictor(detec_cfg)
 
     #if not os.path.exists('/content/val_predict'):
-    val_ouput_path = gen_cfg.VALID.TARGET_PATH
+    val_ouput_path = gen_cfg.VALIDATION.TARGET_PATH
     os.makedirs(val_ouput_path, exist_ok=True)
 
     
-    dataset_dicts = get_building_dicts(gen_cfg.VALID.DATASET_DIR)
+    dataset_dicts = get_building_dicts(gen_cfg.VALIDATION.DATASET_DIR)
     # From here to change the numer of imgs to show
     # num_to_show = 1
     # for d in random.sample(dataset_dicts,num_to_show):  
@@ -86,7 +85,7 @@ def inference_val(detec_cfg, gen_cfg, building_metadata):
     return detec_cfg
 
 def evaluate_AP(detec_cfg, gen_cfg, trainer):
-    evaluator = COCOEvaluator(gen_cfg.VALID.CATALOG, ("bbox", "segm"), False, output_dir=gen_cfg.VALID.TARGET_PATH)
-    val_loader = build_detection_test_loader(detec_cfg, (gen_cfg.VALID.CATALOG))
-    print(inference_on_dataset(trainer.model, val_loader, evaluator))
+    evaluator = COCOEvaluator(gen_cfg.VALIDATION.CATALOG, ("bbox", "segm"), False, output_dir=gen_cfg.VALIDATION.TARGET_PATH)
+    val_loader = build_detection_test_loader(detec_cfg, (gen_cfg.VALIDATION.CATALOG))
+    #print(inference_on_dataset(trainer.model, val_loader, evaluator))
     # another equivalent way to evaluate the model is to use `trainer.test`
