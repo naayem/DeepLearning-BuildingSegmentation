@@ -92,7 +92,7 @@ def cfg_detectron(gen_cfg):
 
     detec_cfg = get_cfg()
     detec_cfg.merge_from_file(model_zoo.get_config_file(gen_cfg.DETECTRON.MODEL_ZOO))
-    detec_cfg.DATASETS.TRAIN = ("building_train", "building_totest")
+    detec_cfg.DATASETS.TRAIN = tuple(gen_cfg.TRAINING.CATALOG)
     detec_cfg.DATASETS.TEST = ()
     detec_cfg.DATALOADER.NUM_WORKERS = gen_cfg.DETECTRON.NUM_WORKERS
     detec_cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(gen_cfg.DETECTRON.WEIGHTS)  # Let training initialize from model zoo

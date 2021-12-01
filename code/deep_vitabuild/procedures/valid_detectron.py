@@ -87,5 +87,5 @@ def inference_val(detec_cfg, gen_cfg, building_metadata):
 def evaluate_AP(detec_cfg, gen_cfg, trainer):
     evaluator = COCOEvaluator(gen_cfg.VALIDATION.CATALOG, ("bbox", "segm"), False, output_dir=gen_cfg.VALIDATION.TARGET_PATH)
     val_loader = build_detection_test_loader(detec_cfg, (gen_cfg.VALIDATION.CATALOG))
-    #print(inference_on_dataset(trainer.model, val_loader, evaluator))
+    print(inference_on_dataset(trainer.model, val_loader, evaluator))
     # another equivalent way to evaluate the model is to use `trainer.test`
