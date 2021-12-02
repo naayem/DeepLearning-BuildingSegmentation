@@ -103,16 +103,23 @@ def convert_annot_detecton2via(filename, outputs, size):
         region = {"shape_attributes": {"name": 'polygon', "all_points_x": [], "all_points_y": []}, "region_attributes":{"class_name": ''}}
         if classes[i] == 0:
             region["region_attributes"]["class_name"] = 'opening'
+            list_x = list_poly[i][0][0::2]
+            list_y = list_poly[i][0][1::2]
+            list_x = list_x[0::max(len(list_x)//8,1)]
+            list_y = list_y[0::max(len(list_y)//8,1)]
         else:
             region["region_attributes"]["class_name"] = 'm6'
+            list_x = list_poly[i][0][0::2]
+            list_y = list_poly[i][0][1::2]
+            list_x = list_x[0::max(len(list_x)//20,1)]
+            list_y = list_y[0::max(len(list_y)//20,1)]
 
-        j = 1
-        for coordinate in list_poly[i][0]:
-            if not (j%20-1):
-                region["shape_attributes"]["all_points_x"].append(coordinate)
-            if not (j%20):
-                region["shape_attributes"]["all_points_y"].append(coordinate)
-            j = j+1
+
+
+        
+        for x,y in zip(list_x, list_y):
+            region["shape_attributes"]["all_points_x"].append(x)
+            region["shape_attributes"]["all_points_y"].append(y)
         annotation[f"{filename}{size}"]['regions'].append(region)
 
     return annotation
