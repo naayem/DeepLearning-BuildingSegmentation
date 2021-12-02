@@ -19,9 +19,9 @@ from lightly.active_learning.agents import ActiveLearningAgent
 from lightly.active_learning.config import SamplerConfig
 from lightly.openapi_generated.swagger_client import SamplingMethod
 
-YOUR_TOKEN = "3aacbf1f972d9cc0c1a8f2517f0d8e306c91ac8ffe7acad3"  # your token of the web platform
-YOUR_DATASET_ID = "6192c2168dae864d8d830838"  # the id of your dataset on the web platform
-DATASET_ROOT = '/data/facades/dataset/lightly/round1'
+YOUR_TOKEN = '3aacbf1f972d9cc0c1a8f2517f0d8e306c91ac8ffe7acad3'  # your token of the web platform
+YOUR_DATASET_ID = '6192c2168dae864d8d830838'  # the id of your dataset on the web platform
+DATASET_ROOT = '/data/facades/basel_lightly/test'
 
 # allow setting of token and dataset_id from environment variables
 def try_get_token_and_id_from_env():
@@ -98,67 +98,3 @@ def inference_AL(detec_cfg, gen_cfg):
         name='active-learning-loop-1'
     )
     al_agent.query(config, scorer)
-
-def inference_detectron_full(detec_cfg, gen_cfg, building_metadata):
-    DATASET_DIR = gen_cfg.INFERENCE.DATASET_PATH
-    TARGET_PATH = gen_cfg.INFERENCE.TARGET_PATH
-
-    # Inference should use the config with parameters that are used in training
-    # detec_cfg now already contains everything we've set previously. We changed it a little bit for inference:
-    detec_cfg.MODEL.WEIGHTS = gen_cfg.INFERENCE.WEIGHTS  # path to the model we just trained
-    detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.INFERENCE.SCORE_THRESH_TEST   # set a custom testing threshold
-    predictor = DefaultPredictor(detec_cfg)
-
-    os.makedirs(TARGET_PATH, exist_ok=True)
-    
-    print(next(os.walk(DATASET_DIR))[1])
-
-    for folder in next(os.walk(DATASET_DIR))[1]:
-        folder_path = DATASET_DIR+'/'+folder
-        for filename in os.listdir(folder_path):
-            if filename.endswith(".jpg"):
-                im = cv2.imread(folder_path+'/'+filename)
-                outputs = predictor(im)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
-                v = Visualizer(im[:, :, ::-1],
-                            metadata=building_metadata, 
-                            scale=0.5, 
-                            instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
-                )
-                out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-
-                img_name = 'inference_on_'+filename
-                savepath = TARGET_PATH + img_name
-                cv2.imwrite(savepath, out.get_image()[:, :, ::-1])
-    
-    return detec_cfg
-
-def inference_detectron_folder(detec_cfg, gen_cfg, building_metadata):
-    DATASET_DIR = gen_cfg.INFERENCE.DATASET_PATH
-    TARGET_PATH = gen_cfg.INFERENCE.TARGET_PATH
-
-    # Inference should use the config with parameters that are used in training
-    # detec_cfg now already contains everything we've set previously. We changed it a little bit for inference:
-    detec_cfg.MODEL.WEIGHTS = gen_cfg.INFERENCE.WEIGHTS  # path to the model we just trained
-    detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.INFERENCE.SCORE_THRESH_TEST   # set a custom testing threshold
-    predictor = DefaultPredictor(detec_cfg)
-
-    
-    os.makedirs(TARGET_PATH, exist_ok=True)
-    
-    for filename in os.listdir(DATASET_DIR):
-        if filename.endswith(".jpg"):
-            im = cv2.imread(DATASET_DIR+'/'+filename)
-            outputs = predictor(im)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
-            v = Visualizer(im[:, :, ::-1],
-                        metadata=building_metadata, 
-                        scale=0.5, 
-                        instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
-            )
-            out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-
-            img_name = 'inference_on_'+filename
-            savepath = TARGET_PATH + img_name
-
-            cv2.imwrite(savepath, out.get_image()[:, :, ::-1])
-
-    return detec_cfg

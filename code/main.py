@@ -6,7 +6,6 @@ import shutil
 from glob import glob
 import pandas as pd
 
-
 MODES = ['TRAINING', 'VALIDATION', 'INFERENCE', 'ACTIVE_LEARNING', 'SEGMENTS_TRANSFER']
 
 def main():

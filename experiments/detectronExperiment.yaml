@@ -27,7 +27,7 @@ VALIDATION:
 INFERENCE:
   status : 1
   STRUCTURE : 'folder' #How to read the dataset. For now: full or folder (through folders and directly thrg items resp)
-  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/val'
+  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/vTestJson'
   TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/inference_jsonTESTS/'
   SCORE_THRESH_TEST : 0.40
   WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/output3/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
