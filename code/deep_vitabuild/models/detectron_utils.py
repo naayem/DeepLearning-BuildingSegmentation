@@ -1,23 +1,10 @@
 # install detectron2: (Colab has CUDA 10.2 + torch 1.8)
 # See https://detectron2.readthedocs.io/tutorials/install.html for instructions
-import warnings, gdown, shutil, random, cv2, json, os
-import detectron2
-import torch, torchvision
-import argparse
-import pandas as pd
+import warnings, cv2, json, os
+import torch
 import numpy as np
-from tqdm import tqdm
-from glob import glob
 from detectron2.utils.logger import setup_logger
-from detectron2.utils.visualizer import ColorMode
 from detectron2.structures import BoxMode
-from detectron2.data import MetadataCatalog, DatasetCatalog
-from detectron2.utils.visualizer import Visualizer
-from detectron2.config import get_cfg
-from detectron2.engine import DefaultPredictor
-from detectron2 import model_zoo
-#from helper import *
-#from floor_helper import *
 
 # need to manually install torch 1.8 if Colab changes its default version
 assert torch.__version__.startswith("1.8")

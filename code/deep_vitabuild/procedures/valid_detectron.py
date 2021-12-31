@@ -77,7 +77,7 @@ def inference_val(detec_cfg, gen_cfg, building_metadata):
         )
         out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
 
-        img_name = 'predict_'+d["file_name"].split('/')[-1]
+        img_name = '/predict_'+d["file_name"].split('/')[-1]
         savepath = val_ouput_path + img_name
         cv2.imwrite(savepath, out.get_image()[:, :, ::-1])
         #cv2_imshow(out.get_image()[:, :, ::-1])

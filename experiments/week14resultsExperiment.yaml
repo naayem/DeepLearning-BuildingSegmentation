@@ -12,19 +12,18 @@ SEGMENTS_TRANSFER:
 TRAINING:
   status : 0
   DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data'
-  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/base87basel/train'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/train'
   CATALOG :
-    - "building_totest"
     - "building_train"
-    - "building_basel_annotation1"
+    - "building_active_learning_loop_1"
 
 VALIDATION:
   status : 0
   DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data/val'
-  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/outputX/val'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/val'
   CATALOG : "building_val"
   SCORE_THRESH_TEST : 0.80 
-  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/annotation1Plus/model_final.pth'
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/model_final.pth'
   #For Train+val in one go use the output dir where the weights will located after training
 
 INFERENCE:
@@ -38,8 +37,8 @@ INFERENCE:
 ACTIVE_LEARNING:
   status : 1
   DATASET_ROOT : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1'
-  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/vTestJson'
-  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/data/reportLeverageImantics'
+  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/val'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/data/new_val'
   SCORE_THRESH_TEST : 0.30
   WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
   rdp_epsilon: 20
@@ -50,13 +49,15 @@ DETECTRON:
     - "train"
     - "val"
     - "basel_annotation1"
+    - "active_learning_loop_1"
   DATASETS :
     - "building_totest"
     - "building_train"
     - "building_val"
     - "building_basel_annotation1"
+    - "building_active_learning_loop_1"
   EPOCH : 40
-  TOTAL_NUM_IMAGES : 213
+  TOTAL_NUM_IMAGES : 100
   MODEL_ZOO : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
   NUM_WORKERS : 2
   WEIGHTS : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
@@ -78,4 +79,4 @@ MODELS:
 
 PROCEDURE : 'proc_basic' 
 
-EXP_NAME : 'base87basel' 
+EXP_NAME : 'active-learning-loop-1' 

@@ -1,16 +1,13 @@
 # import some common libraries
 import os, cv2
+import json
 
 # import some common detectron2 utilities
 from detectron2.engine import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
 from detectron2.utils.visualizer import ColorMode
 
-import pycocotools.mask as mask_util
-import numpy as np
-from imantics import Polygons, Mask
-import imantics
-import json
+from deep_vitabuild.utils.detectron2via import wrap_jsonVia, convert_annot_detecton2via_RDP, convert_bbox_detectron2lightly
 
 def inference_detectron_full(detec_cfg, gen_cfg, building_metadata):
     DATASET_DIR = gen_cfg.INFERENCE.DATASET_PATH
@@ -54,7 +51,6 @@ def inference_detectron_folder(detec_cfg, gen_cfg, building_metadata):
     detec_cfg.MODEL.WEIGHTS = gen_cfg.INFERENCE.WEIGHTS  # path to the model we just trained
     detec_cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = gen_cfg.INFERENCE.SCORE_THRESH_TEST   # set a custom testing threshold
     predictor = DefaultPredictor(detec_cfg)
-
     
     os.makedirs(TARGET_PATH, exist_ok=True)
     
@@ -72,7 +68,7 @@ def inference_detectron_folder(detec_cfg, gen_cfg, building_metadata):
             )
             out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
             
-            output_via = convert_annot_detecton2via(filename, outputs, size)
+            output_via = convert_annot_detecton2via_RDP(filename, outputs, size)
             via_dict.update(output_via)
 
             img_name = 'inference_on_'+filename
@@ -86,99 +82,3 @@ def inference_detectron_folder(detec_cfg, gen_cfg, building_metadata):
         json.dump(wrapped, fp,  indent=4)
 
     return detec_cfg
-
-def convert_annot_detecton2via(filename, outputs, size):
-    annotation = {f"{filename}{size}": {'filename': filename, 'size': size, 'regions': [], 'file_attributes':{} } }
-
-    classes = outputs["instances"].to("cpu").pred_classes.numpy()
-    masko = outputs["instances"].to("cpu").pred_masks
-
-    list_poly = []
-    for mask in masko:
-        mask = mask.numpy()
-        polygons = Mask(mask).polygons()
-        list_poly.append(polygons.segmentation)
-    
-    for i in range(len(classes)):
-        region = {"shape_attributes": {"name": 'polygon', "all_points_x": [], "all_points_y": []}, "region_attributes":{"class_name": ''}}
-        if classes[i] == 0:
-            region["region_attributes"]["class_name"] = 'opening'
-            list_x = list_poly[i][0][0::2]
-            list_y = list_poly[i][0][1::2]
-            list_x = list_x[0::max(len(list_x)//8,1)]
-            list_y = list_y[0::max(len(list_y)//8,1)]
-        else:
-            region["region_attributes"]["class_name"] = 'm6'
-            list_x = list_poly[i][0][0::2]
-            list_y = list_poly[i][0][1::2]
-            list_x = list_x[0::max(len(list_x)//20,1)]
-            list_y = list_y[0::max(len(list_y)//20,1)]
-
-
-
-        
-        for x,y in zip(list_x, list_y):
-            region["shape_attributes"]["all_points_x"].append(x)
-            region["shape_attributes"]["all_points_y"].append(y)
-        annotation[f"{filename}{size}"]['regions'].append(region)
-
-    return annotation
-
-def wrap_jsonVia(images_annotations):
-    wrapping = {
-                "_via_settings": {                # settings used by the VIA application
-                    "ui": {
-                    "annotation_editor_height": 25,
-                    "annotation_editor_fontsize": 0.8,
-                    "leftsidebar_width": 18,
-                    "image_grid": {
-                        "img_height": 80,
-                        "rshape_fill": "none",
-                        "rshape_fill_opacity": 0.3,
-                        "rshape_stroke": "yellow",
-                        "rshape_stroke_width": 2,
-                        "show_region_shape": True,
-                        "show_image_policy": "all"
-                    },
-                    "image": {
-                        "region_label": "__via_region_id__",
-                        "region_color": "__via_default_region_color__",
-                        "region_label_font": "10px Sans",
-                        "on_image_annotation_editor_placement": "NEAR_REGION"
-                    }
-                    },
-                    "core": {
-                    "buffer_size": 18,
-                    "filepath": {},
-                    "default_filepath": ""
-                    },
-                    "project": {
-                    "name": "via_project_16Feb2021_13h17m"
-                    }
-                },
-                "_via_img_metadata":{ 
-                    },
-                "_via_attributes":{
-                    "region":{
-                        "classe names":{
-                            "type":"dropdown",
-                            "description":"",
-                            "options":{
-                                "m6":"",
-                                "rcw":"",
-                                "opening":"",
-                                "masonry":""},
-                            "default_options":{}
-                        }
-                    },
-                    "file":{}
-                },
-                "_via_data_format_version": "2.0.10",
-                "_via_image_id_list": [             # this contains the list of image-id present in the "_via_img_metadata" dictionary
-                ]
-            }
-    for via_image_id in images_annotations.keys():
-        wrapping["_via_image_id_list"].append(via_image_id)
-
-    wrapping["_via_img_metadata"] = images_annotations
-    return wrapping

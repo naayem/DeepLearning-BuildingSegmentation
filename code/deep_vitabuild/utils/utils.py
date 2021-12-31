@@ -1,8 +1,9 @@
 import logging
 import shutil
 
-import yaml
+import os
 from easydict import EasyDict as edict
+from glob import glob
 
 from pathlib import Path
 import argparse
@@ -92,10 +93,11 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def copy_exp_file(trainer):
-    if 'FAKERUN' in trainer.cfg and trainer.cfg.FAKERUN:
+def copy_exp_file(cfg, final_output_dir):
+    if 'FAKERUN' in cfg and cfg.FAKERUN:
         return
-    shutil.copy2(trainer.cfg.CONFIG_FILENAME, trainer.final_output_dir)
+
+    shutil.copy2(cfg.CONFIG_FILENAME, final_output_dir)
 
 def copy_proc_file(trainer):
     if 'FAKERUN' in trainer.cfg and trainer.cfg.FAKERUN:

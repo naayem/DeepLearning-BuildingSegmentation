@@ -5,6 +5,7 @@ setup_logger()
 # import some common libraries
 import numpy as np
 import os, json, cv2
+from pathlib import Path
 
 # import some common detectron2 utilities
 from detectron2 import model_zoo
@@ -37,6 +38,7 @@ def get_building_dicts(img_dir):
       'm6':1,
       'rcw':1
     }
+
     for idx, v in enumerate(imgs_anns.values()):
         record = {}
         
@@ -58,6 +60,9 @@ def get_building_dicts(img_dir):
             category_id = dict_category_id[anno["region_attributes"]['class_name']]
             anno = anno["shape_attributes"]
             px = anno["all_points_x"]
+            if len(px)<4:
+                print(len(px))
+                print(filename)
             py = anno["all_points_y"]
             poly = [(x + 0.5, y + 0.5) for x, y in zip(px, py)]
             poly = [p for x in poly for p in x]
@@ -79,12 +84,10 @@ def add_to_catalog(gen_cfg):
     # add the dict to Cataclog
     DatasetCatalog.clear()
     for d in gen_cfg.DETECTRON.CATALOG:
+        print(gen_cfg.TRAINING.DATASET_DIR+'/' + d)
         DatasetCatalog.register("building_" + d, lambda d=d: get_building_dicts(gen_cfg.TRAINING.DATASET_DIR+'/' + d))
-        MetadataCatalog.get("building_" + d).set(thing_classes=["opening","building"])
-    building_metadata = MetadataCatalog.get("building_train")
-    building_val_metadata = MetadataCatalog.get("building_val")
-    building_totest_metadata = MetadataCatalog.get("building_totest")
-    return building_metadata, building_val_metadata
+        building_metadata = MetadataCatalog.get("building_" + d).set(thing_classes=["opening","building"])
+    return building_metadata
 
 def cfg_detectron(gen_cfg):
     if gen_cfg.DETECTRON.STEPS == None : gen_cfg.DETECTRON.STEPS = []
@@ -104,7 +107,11 @@ def cfg_detectron(gen_cfg):
     detec_cfg.MODEL.ROI_HEADS.NUM_CLASSES = gen_cfg.DETECTRON.NUM_CLASSES  # 2 class ("opening","masonry","m6","rcw"). (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
     # NOTE: this config means the number of classes, but a few popular unofficial tutorials incorrect uses num_classes+1 here.
 
-    detec_cfg.OUTPUT_DIR = gen_cfg.OUTPUT_DIR
+    output_dir = gen_cfg.OUTPUT_DIR
+    exp_foldername = gen_cfg.EXP_NAME
+    final_output_dir = f'{output_dir}/{exp_foldername}'
+
+    detec_cfg.OUTPUT_DIR = final_output_dir
     os.makedirs(detec_cfg.OUTPUT_DIR, exist_ok=True)
     return detec_cfg
 
@@ -115,7 +122,7 @@ def train_detectron(detec_cfg):
     return
 
 def main():
-    building_metadata, building_val_metadata = add_to_catalog()
+    add_to_catalog()
     dataset_dicts = get_building_dicts(gen_cfg.DATASET_ADDRESS+'/train')
     detec_cfg = cfg_detectron(gen_cfg)
     print(detec_cfg.OUTPUT_DIR)
