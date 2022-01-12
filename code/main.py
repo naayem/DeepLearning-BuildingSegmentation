@@ -26,7 +26,7 @@ def main():
         train_detectron.train_detectron(detec_cfg)
     
     if VALIDATION:
-        detec_cfg, trainer = valid_detectron.add_val_loss(detec_cfg)
+        detec_cfg, trainer = valid_detectron.add_val_loss(detec_cfg, gen_cfg)
         detec_cfg = valid_detectron.inference_val(detec_cfg, gen_cfg, building_metadata)
         valid_detectron.evaluate_AP(detec_cfg, gen_cfg, trainer)
 
@@ -48,6 +48,7 @@ def main():
         inferences_AL.inference_detectron_get_notations(detec_cfg, gen_cfg, building_metadata)
 
     #utils.count_dataset(DATASET_DIR)
+    print(f'experiment {gen_cfg.EXP_NAME} is finished')
 
 if __name__ == '__main__':
     main()

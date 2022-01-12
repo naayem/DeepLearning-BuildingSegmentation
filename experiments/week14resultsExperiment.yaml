@@ -10,20 +10,21 @@ SEGMENTS_TRANSFER:
   id_segments : '14051, 14052, 14053, 14054, 14055, 14056, 14057, 14058, 14064, 14065, 14066, 14067, 14068, 14069, 14070, 14071, 14072, 16835, 16836, 16837, 16838, 16839, 16849, 16850, 16851, 16852, 16853, 16854, 16855, 16856, 16857, 16858, 16872, 16873, 16875, 16876, 16877, 16878, 16879, 16880, 16881, 16882, 16883, 16884, 16885, 16888, 16889, 16890, 16948, 16949, 19416' #help="segments' id for testing(delimited list input)"
 
 TRAINING:
-  status : 0
+  status : 1
   DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data'
-  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/train'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/train'
   CATALOG :
     - "building_train"
-    - "building_active_learning_loop_1"
+    - "building_basel_annotation1"
 
 VALIDATION:
-  status : 0
+  status : 1
   DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data/val'
-  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/val'
-  CATALOG : "building_val"
-  SCORE_THRESH_TEST : 0.80 
-  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/model_final.pth'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/val'
+  CATALOG : 
+    - "building_val"
+  SCORE_THRESH_TEST : 0.90 
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/train/model_final.pth'
   #For Train+val in one go use the output dir where the weights will located after training
 
 INFERENCE:
@@ -35,11 +36,11 @@ INFERENCE:
   WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/annotation1Plus/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
 
 ACTIVE_LEARNING:
-  status : 1
+  status : 0
   DATASET_ROOT : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1'
-  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/val'
-  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/data/new_val'
-  SCORE_THRESH_TEST : 0.30
+  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/AL1_VALFINAL'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/data/AL1_VALFINAL_A'
+  SCORE_THRESH_TEST : 0.90
   WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
   rdp_epsilon: 20
 
@@ -50,14 +51,16 @@ DETECTRON:
     - "val"
     - "basel_annotation1"
     - "active_learning_loop_1"
+    - "AL1_VALFINAL"
   DATASETS :
     - "building_totest"
     - "building_train"
     - "building_val"
     - "building_basel_annotation1"
     - "building_active_learning_loop_1"
+    - "building_AL1_VALFINAL"
   EPOCH : 40
-  TOTAL_NUM_IMAGES : 100
+  TOTAL_NUM_IMAGES : 187
   MODEL_ZOO : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
   NUM_WORKERS : 2
   WEIGHTS : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
@@ -68,15 +71,6 @@ DETECTRON:
   BATCH_SIZE_PER_IMAGE : 256   # faster, and good enough for this toy dataset (default: 512)
   NUM_CLASSES : 2  # 2 class ("opening","masonry","m6","rcw").  (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
   # NOTE: this config means the number of classes, but a few popular unofficial tutorials incorrect uses num_classes+1 here.
+ 
 
-MODELS:
-  model1:
-    WEIGHT_PATH : './data/model_weight/model1_weight.pth'
-    DATA_PATH : './data/training_data/model1'
-    SEGMENT_IMAGE_PATH : './data/segments'
-    ID_SEGMENTS : '16878,16888'
-    RESULT_PATH :  './result/model1'
-
-PROCEDURE : 'proc_basic' 
-
-EXP_NAME : 'active-learning-loop-1' 
+EXP_NAME : 'building_basel_annotation1' 

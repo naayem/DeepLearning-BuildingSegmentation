@@ -39,8 +39,8 @@ class ValidationLoss(HookBase):
                 self.trainer.storage.put_scalars(total_val_loss=losses_reduced, 
                                                  **loss_dict_reduced)
 
-def add_val_loss(detec_cfg):
-    detec_cfg.DATASETS.VAL = ("building_val",)
+def add_val_loss(detec_cfg, gen_cfg):
+    detec_cfg.DATASETS.VAL = tuple(gen_cfg.VALIDATION.CATALOG)
     os.makedirs(detec_cfg.OUTPUT_DIR, exist_ok=True)
     trainer = DefaultTrainer(detec_cfg) 
     val_loss = ValidationLoss(detec_cfg)  
@@ -85,7 +85,8 @@ def inference_val(detec_cfg, gen_cfg, building_metadata):
     return detec_cfg
 
 def evaluate_AP(detec_cfg, gen_cfg, trainer):
-    evaluator = COCOEvaluator(gen_cfg.VALIDATION.CATALOG, ("bbox", "segm"), False, output_dir=gen_cfg.VALIDATION.TARGET_PATH)
-    val_loader = build_detection_test_loader(detec_cfg, (gen_cfg.VALIDATION.CATALOG))
+    print(gen_cfg.VALIDATION.CATALOG[0])
+    evaluator = COCOEvaluator(gen_cfg.VALIDATION.CATALOG[0], ("bbox", "segm"), False, output_dir=gen_cfg.VALIDATION.TARGET_PATH)
+    val_loader = build_detection_test_loader(detec_cfg, gen_cfg.VALIDATION.CATALOG[0])
     print(inference_on_dataset(trainer.model, val_loader, evaluator))
     # another equivalent way to evaluate the model is to use `trainer.test`

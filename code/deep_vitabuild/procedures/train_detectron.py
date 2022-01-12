@@ -59,6 +59,7 @@ def get_building_dicts(img_dir):
             #  record category_id
             category_id = dict_category_id[anno["region_attributes"]['class_name']]
             anno = anno["shape_attributes"]
+            print(anno)
             px = anno["all_points_x"]
             if len(px)<4:
                 print(len(px))
@@ -95,6 +96,7 @@ def cfg_detectron(gen_cfg):
 
     detec_cfg = get_cfg()
     detec_cfg.merge_from_file(model_zoo.get_config_file(gen_cfg.DETECTRON.MODEL_ZOO))
+    detec_cfg.MODEL.DEVICE = f"cuda:{gen_cfg.GPUS}"
     detec_cfg.DATASETS.TRAIN = tuple(gen_cfg.TRAINING.CATALOG)
     detec_cfg.DATASETS.TEST = ()
     detec_cfg.DATALOADER.NUM_WORKERS = gen_cfg.DETECTRON.NUM_WORKERS
@@ -110,6 +112,7 @@ def cfg_detectron(gen_cfg):
     output_dir = gen_cfg.OUTPUT_DIR
     exp_foldername = gen_cfg.EXP_NAME
     final_output_dir = f'{output_dir}/{exp_foldername}'
+    final_output_dir = gen_cfg.TRAINING.TARGET_PATH
 
     detec_cfg.OUTPUT_DIR = final_output_dir
     os.makedirs(detec_cfg.OUTPUT_DIR, exist_ok=True)
