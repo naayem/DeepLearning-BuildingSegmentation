@@ -1,83 +1,93 @@
 GPUS : '0' # indices of gpus available on servers. CPU mode is not available, only GPU!
 PRINT_FREQ : 50 # frequency of printing statistics or any other stuff
-OUTPUT_DIR : 'output/<group_of_experiments_name>' # path from the root folder to the save folder
+OUTPUT_DIR : '/home/facades/projects/buildings_segmentation_detection/output/week14'
 
-MODELS:
-  model1:
-    WEIGHT_PATH : './data/model_weight/model1_weight.pth'
-    DATA_PATH : './data/training_data/model1'
-    SEGMENT_IMAGE_PATH : './data/segments'
-    ID_SEGMENTS : '16878,16888'
-    RESULT_PATH :  './result/model1'
-  model2:
-    WEIGHT_PATH : './data/model_weight/model2_weight.pth'
-    DATA_PATH : './data/training_data/model2'
-    SEGMENT_IMAGE_PATH : './data/segments'
-    ID_SEGMENTS : '16878,16888'
-    RESULT_PATH :  './result/model2'
-  duplication:
-    WEIGHT_PATH : './data/affnet_weight'
-    SEGMENT_CROPPED_IMAGE_PATH : './result/model1/crop_imgs'
-    ID_SEGMENTS : '16878,16888'
-    RESULT_PATH :  './result/duplication'
-    MODEL1_OPEN_INFO_FOLDER : './result/model1/open_info'
-    MODEL2_BUILDING_INFO_FOLDER : './result/model2/building_info'
+YOUR_TOKEN : '3aacbf1f972d9cc0c1a8f2517f0d8e306c91ac8ffe7acad3'  # your token of the web platform
+YOUR_DATASET_ID : '61a783dbf64bafa3d864c6b8'  # the id of your dataset on the web platform
 
-LOSSES : # loss functions to create 
-  dummy_loss : 
-    DIR : 'joints_loss' # file in 'lib/losses/<DIR>.py' where the loss class lies
-    NAME : 'JointsLoss' # name of the NN-loss class to initialize
-    PARAMS :
-      criterion : 'L2'
+SEGMENTS_TRANSFER:
+  status : 0 # Deactivate or activate task
+  segments_info_path : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/segments_info.csv' #help="csv file to show the relation between segments and streams"
+  streams_dir : '/data/facades/dataset/build_seg_annotation1' #help="orginal building images are grouped by streams"
+  segment_image_path : '/data/facades/dataset/annotated_data/basel_annotation1' #"Destination: copy to path only select the direction 1 and 4 from the panorama camera and grouped by segments"
+  id_segments : '14051, 14052, 14053, 14054, 14055, 14056, 14057, 14058, 14064, 14065, 14066, 14067, 14068, 14069, 14070, 14071, 14072, 16835, 16836, 16837, 16838, 16839, 16849, 16850, 16851, 16852, 16853, 16854, 16855, 16856, 16857, 16858, 16872, 16873, 16875, 16876, 16877, 16878, 16879, 16880, 16881, 16882, 16883, 16884, 16885, 16888, 16889, 16890, 16948, 16949, 19416' #help="segments' id for testing(delimited list input)"
 
-OPTIM : # optimizers to use
-  net : # must coincide with the name of the network!
-    NAME : 'Adam' # torch.optim.<NAME>
-    PARAMS :
-      lr : 0.001
+TRAINING:
+  status : 0 # Deactivate or activate task
+  DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data' #Where the data for training lies
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/train' # Where to we save outputs
+  CATALOG : # Training folders selected, see how catalogs works
+    - "building_train"
+    - "building_basel_annotation1"
 
-SCHED : # schedulers to use 
-  net : # must coincide with the name of the network!
-    NAME : 'ReduceLROnPlateau' # torch.optim.lr_scheduler.<NAME>
-    PARAMS :
-      mode : 'min'
-      factor : 0.5
-      verbose : True
-      min_lr : 0.000001
-      patience : 10
+VALIDATION:
+  status : 0 # Deactivate or activate task
+  DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data/val' #Where the data for validation lies
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/val' # Where to we save outputs
+  CATALOG : # Validation folders selected, see how catalogs works
+    - "building_val"
+  SCORE_THRESH_TEST : 0.90 
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/train/model_final.pth'
+  #For Train+val in one go use the output dir where the weights will located after training
 
-DATASETS : # datasets to initialize
-  train : # name of the dataset that will be used in the experiment
-    DIR : 'mpii' # file in 'lib/datasets/<DIR>.py' where the dataset class lies
-    NAME : 'MPII' # name of the dataset class to initialize
-    PARAMS :
-      mode : 'train'
-  valid : 
-    DIR : 'mpii'
-    NAME : 'MPII'
-    PARAMS :
-      mode : 'valid'
+INFERENCE:
+  status : 0 # Deactivate or activate task
+  STRUCTURE : 'folder' #How to read the dataset. For now: full or folder (through folders and directly thrg items resp)
+  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/vTestJson'
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/inference_jsonTESTS/'
+  SCORE_THRESH_TEST : 0.90
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/annotation1Plus/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
 
-DATALOAD : # dataloaders to iterate over dataset
-  train : # must coincide with the name of dataset
-    NUM_ITERATIONS_PER_EPOCH : 1_000 # len(dataloader) == NUM_ITERATIONS, not len(dataloader(dataset)) as usual
-    PARAMS :
-      shuffle : True
-      batch_size : 32
-      num_workers : 5
-  valid : 
-    PARAMS :
-      shuffle : False
-      batch_size : 32
-      num_workers : 5
+ACTIVE_LEARNING:
+  status : 1 # Deactivate or activate task
+  DATASET_ROOT : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1' #For Full dataset
+  DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/data/AL_TEST' # Images to read For annotations
+  TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/data/AL_TEST' #For outputs, transfer, annotations
+  SCORE_THRESH_TEST : 0.90
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
+  rdp_epsilon: 20
+  SAMPLER:
+    al_loop: 'active-learning-loop-2' #name of tag in lightly
+    n_samples: 100
+    method: 'CORAL'
+# If you want to train, validate.. and active learning in one go, weights, target_path and dataset_path must match
 
-TRAINING : # experiment specifications
-  END_EPOCH : 300 
-  # RESUME :
-  #   LOAD_MODELS_ONLY : True # if True load weights as initialization, "fine-tuning" mode
-  #   CKPT : '/path/to/saved/model.pth' # path where the pretrained model lies
+FLOOR_DETECTION:
+  status : 0 # Deactivate or activate task
+  data_path: '/home/facades/projects/buildings_segmentation_detection/code/data/train'
+  segment_image_path: '/home/facades/projects/buildings_segmentation_detection/code/data/totest'
+  id_segments: '20200224'
+  results_path: '/home/facades/projects/buildings_segmentation_detection/output/RAYMOND/FLOOR'
+  WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/week14/active-learning-loop-1/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
 
 
-PROCEDURE : 'proc_basic' # file 'lib/procedures/procedures/<PROCEDURE>.py' where train() and valid() are specified
+DETECTRON:
+  CATALOG :
+    - "totest"
+    - "train"
+    - "val"
+    - "basel_annotation1"
+    - "active_learning_loop_1"
+    - "AL1_VALFINAL"
+  DATASETS :
+    - "building_totest"
+    - "building_train"
+    - "building_val"
+    - "building_basel_annotation1"
+    - "building_active_learning_loop_1"
+    - "building_AL1_VALFINAL"
+  EPOCH : 40
+  TOTAL_NUM_IMAGES : 187
+  MODEL_ZOO : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+  NUM_WORKERS : 2
+  WEIGHTS : "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+  IMS_PER_BATCH : 2
+  BASE_LR : 0.00025  # pick a good LR
+  MAX_ITER : 'int(EPOCH*TOTAL_NUM_IMAGES/cfg.SOLVER.IMS_PER_BATCH-1)' #INFORMATIVE ONLY # 300 iterations seems good enough for this toy dataset; you will need to train longer for a practical dataset
+  STEPS :      # do not decay learning rate
+  BATCH_SIZE_PER_IMAGE : 256   # faster, and good enough for this toy dataset (default: 512)
+  NUM_CLASSES : 2  # 2 class ("opening","masonry","m6","rcw").  (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
+  # NOTE: this config means the number of classes, but a few popular unofficial tutorials incorrect uses num_classes+1 here.
+ 
 
-EXP_NAME : 'basic_exp_name_MPII_Adamlr1e-3_pat10_batch32' 
+EXP_NAME : 'building_basel_annotation1' 
