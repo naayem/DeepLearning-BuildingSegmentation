@@ -45,8 +45,8 @@ def main():
         df_test.apply(lambda x: create_segment_data.create_segment_folder(x, gen_cfg.SEGMENTS_TRANSFER.streams_dir, gen_cfg.SEGMENTS_TRANSFER.segment_image_path), axis=1)
 
     if ACTIVE_LEARNING:
-        inferences_AL.inference_AL(detec_cfg, gen_cfg)
-        #inferences_AL.get_images_directly_from_tagname(gen_cfg)
+        inferences_AL.inference_AL(detec_cfg, gen_cfg) #If tag_name already exist and you still want to retrieve annotations comment this line out
+        inferences_AL.get_images_directly_from_tagname(gen_cfg)
         inferences_AL.inference_detectron_get_notations(detec_cfg, gen_cfg, building_metadata)
     
     if FLOOR_DETECTION:

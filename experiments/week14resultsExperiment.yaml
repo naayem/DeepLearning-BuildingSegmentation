@@ -6,14 +6,14 @@ YOUR_TOKEN : '3aacbf1f972d9cc0c1a8f2517f0d8e306c91ac8ffe7acad3'  # your token of
 YOUR_DATASET_ID : '61a783dbf64bafa3d864c6b8'  # the id of your dataset on the web platform
 
 SEGMENTS_TRANSFER:
-  status : 0
+  status : 0 # Deactivate or activate task
   segments_info_path : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/segments_info.csv' #help="csv file to show the relation between segments and streams"
   streams_dir : '/data/facades/dataset/build_seg_annotation1' #help="orginal building images are grouped by streams"
   segment_image_path : '/data/facades/dataset/annotated_data/basel_annotation1' #"Destination: copy to path only select the direction 1 and 4 from the panorama camera and grouped by segments"
   id_segments : '14051, 14052, 14053, 14054, 14055, 14056, 14057, 14058, 14064, 14065, 14066, 14067, 14068, 14069, 14070, 14071, 14072, 16835, 16836, 16837, 16838, 16839, 16849, 16850, 16851, 16852, 16853, 16854, 16855, 16856, 16857, 16858, 16872, 16873, 16875, 16876, 16877, 16878, 16879, 16880, 16881, 16882, 16883, 16884, 16885, 16888, 16889, 16890, 16948, 16949, 19416' #help="segments' id for testing(delimited list input)"
 
 TRAINING:
-  status : 0
+  status : 0 # Deactivate or activate task
   DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data' #Where the data for training lies
   TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/train' # Where to we save outputs
   CATALOG : # Training folders selected, see how catalogs works
@@ -21,7 +21,7 @@ TRAINING:
     - "building_basel_annotation1"
 
 VALIDATION:
-  status : 0
+  status : 0 # Deactivate or activate task
   DATASET_DIR : '/home/facades/projects/buildings_segmentation_detection/code/data/val' #Where the data for validation lies
   TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/week14/building_basel_annotation1/val' # Where to we save outputs
   CATALOG : # Validation folders selected, see how catalogs works
@@ -31,7 +31,7 @@ VALIDATION:
   #For Train+val in one go use the output dir where the weights will located after training
 
 INFERENCE:
-  status : 0
+  status : 0 # Deactivate or activate task
   STRUCTURE : 'folder' #How to read the dataset. For now: full or folder (through folders and directly thrg items resp)
   DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/code/data/vTestJson'
   TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/output/inference_jsonTESTS/'
@@ -39,7 +39,7 @@ INFERENCE:
   WEIGHTS : '/home/facades/projects/buildings_segmentation_detection/output/annotation1Plus/model_final.pth' #For Train+inf in one go use the output dir where the weights will located after training
 
 ACTIVE_LEARNING:
-  status : 1
+  status : 1 # Deactivate or activate task
   DATASET_ROOT : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1' #For Full dataset
   DATASET_PATH: '/home/facades/projects/buildings_segmentation_detection/data/AL_TEST' # Images to read For annotations
   TARGET_PATH : '/home/facades/projects/buildings_segmentation_detection/data/AL_TEST' #For outputs, transfer, annotations
@@ -53,7 +53,7 @@ ACTIVE_LEARNING:
 # If you want to train, validate.. and active learning in one go, weights, target_path and dataset_path must match
 
 FLOOR_DETECTION:
-  status : 0
+  status : 0 # Deactivate or activate task
   data_path: '/home/facades/projects/buildings_segmentation_detection/code/data/train'
   segment_image_path: '/home/facades/projects/buildings_segmentation_detection/code/data/totest'
   id_segments: '20200224'
