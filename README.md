@@ -8,22 +8,45 @@
 
 `dataset`: introduction of dataset 
 
+`experiments`: .yaml files with all configurations needed to run the code
+
 `files`: presentation and reports
+
+`output`: output directory for any outputs from the code
 
 
 
 **Note**: please download the zip files in the release section, unzip `data.zip` and put this folder in `code/data`; unzip `annotated_data.zip` and put this folder in `dataset/annotated_data`;  
 
 
-## Introduciton
+## Introduction
 
-This project use deep learning model mask rcnn to detect the builidng instance, openings and building type. Also, builidng duplicaitons are found by using  image clustring method 'DBSDCAN'.
+This project use deep learning model mask rcnn to detect the builidng instance, openings and building type.
 
-This project is mainly divided into **three models**.
+This project is mainly divided into **six tasks**:
 
-- Model1: First use mask-rcnn model to predict the builiding instance and crop the building instance, then estimate the number of building floor
-- Model2: use mask-rcnn model to predict the building type
-- Duplicaiton: use DBSCAN clustring to group the builidng dupilcaitons which are predicted by model1, then count the building number, finally combine the building type from model 2 to th building instance.
-# buildings_segmentation_detection
-# buildings_segmentation_detection
-# buildings_segmentation_detection
+- Segments transfer
+- Training
+- Validation
+- Inferences
+- Active Learning
+- Floor Detection
+
+
+
+
+
+#################################
+
+## The core of the project is a custom yet functional approach to detectron2.
+
+Aims at making detecton2 application more handy and clear.
+
+It comprises of experiment description (.yaml dictionary files), starting point file (`main.py`) and the `deep_vitabuild` directory. The latter includes:
+
+- `core`: The main class `Trainer` that parses experiment description and initializes the experiment. Its instance is shared between all training steps needed.
+- `model1`: All functions needed for Floor Detections
+- `model1`: All functions needed for Floor Detections
+
+
+# pose_interpolation

@@ -7,7 +7,7 @@ from detectron2.engine import DefaultPredictor
 from detectron2.utils.visualizer import Visualizer
 from detectron2.utils.visualizer import ColorMode
 
-from deep_vitabuild.utils.detectron2via import wrap_jsonVia, convert_annot_detecton2via_RDP, convert_bbox_detectron2lightly
+from deep_vitabuild.utils.detectron2via import wrap_jsonVia, convert_annot_detectron2via_RDP, convert_bbox_detectron2lightly
 
 def inference_detectron_full(detec_cfg, gen_cfg, building_metadata):
     DATASET_DIR = gen_cfg.INFERENCE.DATASET_PATH
@@ -68,7 +68,7 @@ def inference_detectron_folder(detec_cfg, gen_cfg, building_metadata):
             )
             out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
             
-            output_via = convert_annot_detecton2via_RDP(filename, outputs, size)
+            output_via = convert_annot_detectron2via_RDP(filename, outputs, size)
             via_dict.update(output_via)
 
             img_name = 'inference_on_'+filename

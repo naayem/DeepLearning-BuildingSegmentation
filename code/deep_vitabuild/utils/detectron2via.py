@@ -6,6 +6,10 @@ from imantics import Mask
 from rdp import rdp
 
 def wrap_jsonVia(images_annotations):
+    '''
+        Wrapper of json file to make it compatible with via 2.0 reader
+        Outputs a readable json file for via 2.0
+    '''
     wrapping = {
                 "_via_settings": {                # settings used by the VIA application
                     "ui": {
@@ -64,7 +68,14 @@ def wrap_jsonVia(images_annotations):
     wrapping["_via_img_metadata"] = images_annotations
     return wrapping
 
-def convert_annot_detecton2via_RDP(filename, outputs, size, rdp_epsilon):
+def convert_annot_detectron2via_RDP(filename, outputs, size, rdp_epsilon):
+    '''
+        Converts detectron2 masks to polygons with RDP algorithm
+        Results in polygons easy to be modified by hand
+        Returns a dict containing all annotations
+        TODO: Discard polygons with less than 4 points because they results in problems later
+    '''
+
     annotation = {f"{filename}{size}": {'filename': filename, 'size': size, 'regions': [], 'file_attributes':{} } }
 
     classes = outputs["instances"].to("cpu").pred_classes.numpy()
@@ -82,14 +93,10 @@ def convert_annot_detecton2via_RDP(filename, outputs, size, rdp_epsilon):
             region["region_attributes"]["class_name"] = 'opening'
             list_x = list_poly[i][0][0::2]
             list_y = list_poly[i][0][1::2]
-            #list_x = list_x[0::max(len(list_x)//15,1)]
-            #list_y = list_y[0::max(len(list_y)//15,1)]
         else:
             region["region_attributes"]["class_name"] = 'm6'
             list_x = list_poly[i][0][0::2]
             list_y = list_poly[i][0][1::2]
-            #list_x = list_x[0::max(len(list_x)//30,1)]
-            #list_y = list_y[0::max(len(list_y)//30,1)]
 
         rdp_format = []
         rdp_format_coord = []
@@ -105,7 +112,8 @@ def convert_annot_detecton2via_RDP(filename, outputs, size, rdp_epsilon):
         for x,y in zip(list_x, list_y):
             region["shape_attributes"]["all_points_x"].append(x)
             region["shape_attributes"]["all_points_y"].append(y)
-        annotation[f"{filename}{size}"]['regions'].append(region)
+        if len(list_x)>3:   #If There is less than 4 points in a polygon then we discard it
+            annotation[f"{filename}{size}"]['regions'].append(region)
 
     return annotation
 
@@ -129,7 +137,12 @@ def convert_bbox_detectron2lightly(outputs):
       outputs['instances'].pred_classes.cpu().numpy().tolist())
     return output
 
-def convert_annot_detecton2via(filename, outputs, size):
+def convert_annot_detectron2via(filename, outputs, size):
+    '''
+        Converts detectron2 masks to polygons without RDP algorithm
+        Results in polygons to complex to be modified by hand
+        Returns a dict containing all annotations
+    '''
     annotation = {f"{filename}{size}": {'filename': filename, 'size': size, 'regions': [], 'file_attributes':{} } }
 
     classes = outputs["instances"].to("cpu").pred_classes.numpy()

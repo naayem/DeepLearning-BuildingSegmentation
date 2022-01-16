@@ -14,12 +14,13 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 from detectron2.engine import DefaultTrainer
 from detectron2.structures import BoxMode
 
-# if your dataset is in COCO format, this cell can be replaced by the following three lines:
-# from detectron2.data.datasets import register_coco_instances
-# register_coco_instances("my_dataset_train", {}, "json_annotation_train.json", "path/to/image/dir")
-# register_coco_instances("my_dataset_val", {}, "json_annotation_val.json", "path/to/image/dir")
+
 
 def get_building_dicts(img_dir):
+    '''
+        Reads the "via_region_data.json" file. File must respect the format of json output from via 2.0 annotation tool
+        Otherwise new function must be written for new formats
+    '''
     # if your dataset is in COCO format, this cell can be replaced by the following three lines:
     # from detectron2.data.datasets import register_coco_instances
     # register_coco_instances("my_dataset_train", {}, "json_annotation_train.json", "path/to/image/dir")
@@ -80,9 +81,13 @@ def get_building_dicts(img_dir):
     return dataset_dicts
 
 def add_to_catalog(gen_cfg):
+    '''
+        Add the datasets to Detecron2 catalog.
+        Outputs building_metadata for Visualizer
+    '''
     print(gen_cfg.DETECTRON.CATALOG)
 
-    # add the dict to Cataclog
+    # add the dict to Catalog
     DatasetCatalog.clear()
     for d in gen_cfg.DETECTRON.CATALOG:
         print(gen_cfg.TRAINING.DATASET_DIR+'/' + d)
@@ -91,6 +96,10 @@ def add_to_catalog(gen_cfg):
     return building_metadata
 
 def cfg_detectron(gen_cfg):
+    '''
+        Separate detectron2 configurations from general configurations
+        Outputs detec_cfg for Detecton2 configurations 
+    '''
     if gen_cfg.DETECTRON.STEPS == None : gen_cfg.DETECTRON.STEPS = []
     print(gen_cfg.DETECTRON.STEPS)
 
@@ -119,17 +128,10 @@ def cfg_detectron(gen_cfg):
     return detec_cfg
 
 def train_detectron(detec_cfg):
+    '''
+        Training function following detec_cfg configurations
+    '''
     trainer = DefaultTrainer(detec_cfg) 
     trainer.resume_or_load(resume=False)
     trainer.train()
     return
-
-def main():
-    add_to_catalog()
-    dataset_dicts = get_building_dicts(gen_cfg.DATASET_ADDRESS+'/train')
-    detec_cfg = cfg_detectron(gen_cfg)
-    print(detec_cfg.OUTPUT_DIR)
-    train_detectron(detec_cfg)
-
-if __name__ == '__main__':
-    main()

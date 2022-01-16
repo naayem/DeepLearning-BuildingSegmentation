@@ -1,7 +1,7 @@
 import pprint
 
 from deep_vitabuild import utils
-from deep_vitabuild import core
+from deep_vitabuild import core_delete
 
 def main():
 
@@ -11,7 +11,7 @@ def main():
     cfg = utils.utils.parse_args().cfg
     print("ooooo", cfg)
  
-    trainer = core.trainer.Trainer(cfg)
+    trainer = core_delete.trainer.Trainer(cfg)
 
     ### copy yaml description file to the save folder
     utils.utils.copy_exp_file(trainer)

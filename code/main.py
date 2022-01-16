@@ -1,9 +1,10 @@
 from deep_vitabuild.utils import utils, config_utils, create_segment_data
 from deep_vitabuild.procedures import inferences_detectron, train_detectron, valid_detectron, inferences_AL
+from deep_vitabuild.model1 import model1
 
 import pandas as pd
 
-MODES = ['TRAINING', 'VALIDATION', 'INFERENCE', 'ACTIVE_LEARNING', 'SEGMENTS_TRANSFER']
+MODES = ['TRAINING', 'VALIDATION', 'INFERENCE', 'ACTIVE_LEARNING', 'SEGMENTS_TRANSFER', 'FLOOR_DETECTION']
 
 def main():
     gen_cfg = utils.parse_args().cfg
@@ -18,6 +19,7 @@ def main():
     INFERENCE = eval(f'gen_cfg.{MODES[2]}.status')
     ACTIVE_LEARNING = eval(f'gen_cfg.{MODES[3]}.status')
     SEGMENTS_TRANSFER = eval(f'gen_cfg.{MODES[4]}.status')
+    FLOOR_DETECTION = eval(f'gen_cfg.{MODES[5]}.status')
 
     building_metadata = train_detectron.add_to_catalog(gen_cfg)
     detec_cfg = train_detectron.cfg_detectron(gen_cfg)
@@ -43,9 +45,17 @@ def main():
         df_test.apply(lambda x: create_segment_data.create_segment_folder(x, gen_cfg.SEGMENTS_TRANSFER.streams_dir, gen_cfg.SEGMENTS_TRANSFER.segment_image_path), axis=1)
 
     if ACTIVE_LEARNING:
-        #inferences_AL.inference_AL(detec_cfg, gen_cfg)
-        #inferences_AL.inference_detectron_get_notations_from_list(detec_cfg, gen_cfg, building_metadata)
+        inferences_AL.inference_AL(detec_cfg, gen_cfg)
+        #inferences_AL.get_images_directly_from_tagname(gen_cfg)
         inferences_AL.inference_detectron_get_notations(detec_cfg, gen_cfg, building_metadata)
+    
+    if FLOOR_DETECTION:
+        cropped_img_dir = f'{gen_cfg.FLOOR_DETECTION.results_path}/crop_imgs'
+        opening_info_dir = f'{gen_cfg.FLOOR_DETECTION.results_path}/open_info'
+        floor_dir = f'{gen_cfg.FLOOR_DETECTION.results_path}/floor_imgs'
+        dataset_dir = gen_cfg.FLOOR_DETECTION.segment_image_path
+        model1.model1(dataset_dir, cropped_img_dir, opening_info_dir, floor_dir, detec_cfg, building_metadata)
+
 
     #utils.count_dataset(DATASET_DIR)
     print(f'experiment {gen_cfg.EXP_NAME} is finished')
