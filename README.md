@@ -14,6 +14,7 @@
 
 `output`: output directory for any outputs from the code
 
+`Laxiang_old`: code from previous project
 
 
 **Note**: please download the zip files in the release section, unzip `data.zip` and put this folder in `code/data`; unzip `annotated_data.zip` and put this folder in `dataset/annotated_data`;  
@@ -44,9 +45,9 @@ Aims at making detecton2 application more handy and clear.
 
 It comprises of experiment description (.yaml dictionary files), starting point file (`main.py`) and the `deep_vitabuild` directory. The latter includes:
 
-- `core`: The main class `Trainer` that parses experiment description and initializes the experiment. Its instance is shared between all training steps needed.
 - `model1`: All functions needed for Floor Detections
-- `model1`: All functions needed for Floor Detections
+- `procedures`: All functions needed for Training, Validation, Inference, Active Learning
+- `utils`: Additional utilities, e.g. visualization, detectron to via conversions etc..
 
 
-# pose_interpolation
+
