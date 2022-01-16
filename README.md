@@ -3,7 +3,6 @@ Authors: Vincent Naayem, MT, VITA Lab, EPFL
 
 Supervisors: Saeed Saadatnejad, Alireza Khodaverdian, Prof. Alexandre Massoud Alahi
 
-
 ## Content
 
 `code`: all the code used in this project
@@ -50,6 +49,11 @@ It comprises of experiment description (.yaml dictionary files), starting point 
 
 To use Detectron2 please refer to documentations and tutorials online.
 To use Lightly platform please refer to documentations and tutorials online
+
+To run the code:
+```
+python code/main.py --cfg experiments/experiment.yaml 
+```
 
 ## Installation
 
