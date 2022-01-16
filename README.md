@@ -1,5 +1,7 @@
 # Building instance segementation and Building type detection
+Authors: Vincent Naayem, MT, VITA Lab, EPFL
 
+Supervisors: Saeed Saadatnejad, Alireza Khodaverdian, Prof. Alexandre Massoud Alahi
 
 
 ## Content
