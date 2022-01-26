@@ -3,6 +3,48 @@ Authors: Vincent Naayem, MT, VITA Lab, EPFL
 
 Supervisors: Saeed Saadatnejad, Alireza Khodaverdian, Prof. Alexandre Massoud Alahi
 
+## Step by step tutorial
+
+Install everything:
+-	Poetry install, to install and resolve all dependencies in pyproject.toml
+-	pip install pandas
+-	pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.8/index.html
+
+Manage datasets and paths:
+- Full dataset: '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1'
+- Training and validation datasets : project_path/code/data
+- Output datasets: 'project_path/data’
+
+
+To run the code: 
+- python code/main.py --cfg experiments/experiment.yaml
+
+To check that configurations runs without error:
+- In experiment.yaml put all status to 0 and run code
+
+To check that training runs correctly, in the configuration yaml modify accordingly:
+- Training: Dataset_dir is the path to the folder containing all the folders of the datasets with their respective annotations.
+- Training: TARGET_PATH is the path where any output will be saved: ‘project_path/output/OUTPUT_DIR/EXP_NAME/train’
+- Training: CATALOG: name of the dataset to train with ‘building_train’ for ‘train’ folder or ‘building_totest’ for ‘totest’ folder.
+
+To check that Validation runs correctly, in the configuration yaml modify accordingly:
+- Validation: Dataset_dir is the path containing the validation dataset folder and its annotations. ‘project_path/code/data/val'
+- Validation: TARGET_PATH is the path where any output will be saved: ‘project_path/output/OUTPUT_DIR/EXP_NAME/val’
+- Validation: WEIGHTS: Where the wheights of a training we want to test lies. For example: ‘project_path/output/OUTPUT_DIR/EXP_NAME/train/model_final.pth’
+
+Active_learninng:
+- DATASET_ROOT : '/data/facades/dataset/dataset_complete/dataset/data_basel_images_pc/basel_dataset/Daten_segments1' #For Full dataset
+
+- DATASET_PATH: 'project_path/data/AL_TEST' # Images to read For annotations
+- TARGET_PATH : 'project_path/data/AL_TEST' #For outputs, transfer, annotations
+- Active learning annotations resides target_path
+- Weights: same as valid
+- In Sampler: al_loop: please change from 'active-learning-loop-2' to ‘AL-test’ for example
+
+If everything works fine self-annotated images to annotate resides in TARGET_PATH
+
+
+
 ## Content
 
 `code`: all the code used in this project
