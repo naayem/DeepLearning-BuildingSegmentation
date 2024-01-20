@@ -3,6 +3,8 @@ Authors: Vincent Naayem, MT, VITA Lab, EPFL
 
 Supervisors: Saeed Saadatnejad, Alireza Khodaverdian, Prof. Alexandre Massoud Alahi
 
+For complete pdf report contact: vincentnaayem@gmail.com
+
 ## Step by step tutorial
 
 Install everything:
